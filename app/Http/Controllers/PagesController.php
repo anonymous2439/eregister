@@ -13,11 +13,6 @@ class PagesController extends Controller
     	return view('index');
     }
 
-    public function qrcode(Request $request, $id){
-    	$image = QrCode::format('png')->size(200)->generate($id);
-		return response($image)->header('Content-type','image/png');
-    }
-
     public function register(Request $request){
     	$messages = Session::get('messages');
     	return view('register')->with(['messages' => $messages]);
@@ -64,9 +59,7 @@ class PagesController extends Controller
 	            	return redirect('/profile/'.Auth::user()->id);
 	        }
         }
-        
-        return redirect('/admin/login')->with(['errors'=>['Incorrect E-mail / Phone Number / Password']]);
-        
+        return redirect('/admin/login')->with(['errors'=>['Incorrect E-mail / Phone Number / Password']]);     
     }
 
     public function logout(Request $request){
@@ -76,5 +69,9 @@ class PagesController extends Controller
 
     public function profile(Request $request, $id){
     	return view('profile')->with(['id'=>$id]);
+    }
+
+    public function events(Request $request){
+    	return view('admin.events');
     }
 }

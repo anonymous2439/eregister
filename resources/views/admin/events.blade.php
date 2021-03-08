@@ -2,8 +2,8 @@
 
 @section('body')
 	<div class="container">
-	Dashboard
-	<a href="/events">Events</a>
+	Events
+	<a href="/admin">Dashboard</a>
 	<a href="/logout">Logout</a>
 	</div>
 @endsection
