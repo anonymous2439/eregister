@@ -5,6 +5,7 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\EventTypesController;
+use App\Http\Controllers\EventsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,7 @@ Route::resource('/event/type', EventTypesController::class);
 Route::get('/profile/{id}', [PagesController::class, 'profile']);
 Route::post('/register/submit', [PagesController::class, 'registerSubmit']);
 Route::get('/events', [PagesController::class, 'events']);
+Route::resource('/event', EventsController::class);
 //admin
 Route::get('/admin', [PagesController::class, 'adminIndex']);
 Route::get('/admin/login', [PagesController::class, 'adminLogin']);

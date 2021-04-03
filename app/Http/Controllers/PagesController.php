@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Auth;
 use Session;
+use App\Models\EventType;
 
 class PagesController extends Controller
 {
@@ -72,6 +73,7 @@ class PagesController extends Controller
     }
 
     public function events(Request $request){
-    	return view('admin.events');
+    	$eventTypes = EventType::all();
+    	return view('admin.events')->with(['eventTypes'=>$eventTypes]);
     }
 }

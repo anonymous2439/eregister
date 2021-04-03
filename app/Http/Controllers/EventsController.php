@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Event;
+use Auth;
 
 class EventsController extends Controller
 {
@@ -34,7 +36,12 @@ class EventsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $event = new Event();
+        $event->user_id = Auth::user()->id;
+        $event->name = $request->input('event_name');
+        $event->venue = $request->input('event_venue');
+        $event->event_type_id = $request->input('event_type');
+        $event->save();
     }
 
     /**
