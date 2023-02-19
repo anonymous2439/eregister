@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Event Details</h2>
+<p>Title: {{ event.title }}</p>
+<p>Description: {{ event.description }}</p>
+<p>Venue: {{ event.venue }}</p>
+<p>Start Date: {{ event.start_date }}</p>
+<p>End Date: {{ event.end_date }}</p>
+<h2>Participants ({{ participants.count }})</h2>
+{% for participant in participants %}
+<p>{{ participant.user.last_name }}, {{ participant.user.first_name }} {{ participant.user.middle_name }} - participated on {{ participant.date_participated }}</p>
+{% endfor %}
+{% endblock content %}

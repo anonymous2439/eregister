@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <style>
+
+</style>
+<video id="preview"></video>
+</head>
+<body>
+Events
+{% for event in events %}
+    <p id="event-id">{{ event.id }}</p>
+    <p>{{ event.title }}</p>
+{% endfor %}
+</br>
+QR data: {{ qr }}
+
+<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+<script src="{% static 'assets/instascan.min.js' %}"></script>
+<script type="text/javascript">
+    var scanner = new Instascan.Scanner({ video: document.getElementById('preview'), scanPeriod: 5, mirror: false });
+
+    function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", '{{csrf_token}}');
+        }
+      }
+    });
+
+    scanner.addListener('scan',function(content){
+    alert($("#event-id").html());
+        $.ajax({
+          type: 'POST',
+          url: "/events/readqr/",
+          contentType: 'application/json; charset=utf-8',
+          data: JSON.stringify({"user_id":content, "event_id": $("#event-id").html()}),
+          dataType: 'json',
+          success: function(response){
+            alert("ID: "+response['data']['id']+" | Email: "+response['data']['email']);
+            },
+           error: function(response){
+            alert("error");
+           }
+        });
+        //window.location.href=content;
+    });
+    Instascan.Camera.getCameras().then(function (cameras){
+        if(cameras.length>0){
+            scanner.start(cameras[0]);
+            $('[name="options"]').on('change',function(){
+
+                if(cameras[1]!=""){
+                    scanner.start(cameras[1]);
+                }else{
+                    alert('No Back camera found!');
+                }
+
+            });
+        }else{
+            console.error('No cameras found.');
+            alert('No cameras found.');
+        }
+    }).catch(function(e){
+        console.error(e);
+        alert(e);
+    });
+</script>
+</body>
+</html>

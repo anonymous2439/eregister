@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<h2>{{ event.title }}</h2>
+<p id="event-id" hidden>{{ event.id }}</p>
+<p>Description: {{ event.description }}</p>
+<p>Organizer: {{ event.organizer.first_name }} {{ event.organizer.last_name }}</p>
+<p>From: {{ event.start_date }}</p>
+<p>To: {{ event.end_date}}</p>
+
+<video id="preview"></video>
+<p>Current participant: <span id="current-participant"></span></p>
+<p>Date Participated: <span id="date-participated"></span></p>
+
+{% endblock content %}
+
+{% block scripts %}
+<script src="{% static 'assets/instascan.min.js' %}"></script>
+<script type="text/javascript">
+    var scanner = new Instascan.Scanner({ video: document.getElementById('preview'), scanPeriod: 5, mirror: false });
+
+    function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", '{{csrf_token}}');
+        }
+      }
+    });
+
+    scanner.addListener('scan',function(content){
+        $.ajax({
+          type: 'POST',
+          contentType: 'application/json; charset=utf-8',
+          data: JSON.stringify({"user_id":content, "event_id": $("#event-id").html()}),
+          dataType: 'json',
+          success: function(response){
+                if(response["isSuccess"]){
+                    $("#current-participant").html(response['participant_firstname']+" "+response['participant_lastname']);
+                    $("#date-participated").html(response['participant_participated']);
+                }
+                else{
+                    alert(response["message"]);
+                }
+            },
+           error: function(response){
+                alert("error");
+           }
+        });
+    });
+    Instascan.Camera.getCameras().then(function (cameras){
+        if(cameras.length>0){
+            scanner.start(cameras[0]);
+            $('[name="options"]').on('change',function(){
+
+                if(cameras[1]!=""){
+                    scanner.start(cameras[1]);
+                }else{
+                    alert('No Back camera found!');
+                }
+
+            });
+        }else{
+            console.error('No cameras found.');
+            alert('No cameras found.');
+        }
+    }).catch(function(e){
+        console.error(e);
+        alert(e);
+    });
+</script>
+{% endblock scripts %}

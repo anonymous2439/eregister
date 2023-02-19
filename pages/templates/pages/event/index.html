@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Events (events this user organizes)</h1>
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th></th>
+    </tr>
+{% for event in events %}
+    <tr>
+        <td><a href="{% url 'event_details' event_id=event.pk %}">{{ event.title }}</a></td>
+        <td>{{ event.description }}</td>
+        <td>{{ event.start_date }}</td>
+        <td>{{ event.end_date }}</td>
+        <td><a href="{% url 'event_participate' event_id=event.id %}">Accept Participants</a></td>
+    </tr>
+{% endfor %}
+</table>
+
+{% endblock content %}
