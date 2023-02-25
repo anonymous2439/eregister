@@ -89,6 +89,12 @@ def event_details(request, event_id):
     return render(request, template, context)
 
 
+def event_manage(request):
+    template = 'pages/event/manage_event.html'
+    events = Event.objects.all()
+    return render(request, template, {"events": events})
+
+
 def event_create(request):
     template = 'pages/event/create_event.html'
     create_event_form = CreateEventForm()

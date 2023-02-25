@@ -33,7 +33,7 @@
                         Logged in as: {{ user }}
                         <ul>
                             {% if user.is_superuser %}
-                            <li><a href="{% url 'event_create' %}">Create Event</a></li>
+                            <li><a href="{% url 'event_manage' %}">Manage Event</a></li>
                             <li><a href="{% url 'register_user' %}">Register User</a></li>
                             {% endif %}
                         </ul>
