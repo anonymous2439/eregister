@@ -14,11 +14,17 @@ class Event(models.Model):
     end_date = models.DateTimeField()
     organizer = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.title
+
 
 class Participant(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_participated = models.DateTimeField(default=datetime.now, blank=True)
+
+    def __str__(self):
+        return str(self.event)+' - '+str(self.user)
 
     class Meta:
         constraints = [

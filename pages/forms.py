@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ModelForm
 
 from events.models import Event
 from users.models import User
@@ -13,18 +14,25 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
 
 
-class RegisterUserForm(forms.Form):
+class RegisterUserForm(ModelForm):
     email = forms.EmailField(label='Email')
     first_name = forms.CharField(label='First Name')
     middle_name = forms.CharField(label='Middle Name')
     last_name = forms.CharField(label='Last Name')
     user_id = forms.CharField(label='User ID')
 
+    class Meta:
+        model = User
+        fields = ('email', 'first_name', 'middle_name', 'last_name', 'user_id')
 
-class CreateEventForm(forms.Form):
-    title = forms.CharField(label='Title')
-    description = forms.CharField(label='Description')
-    venue = forms.CharField(label='Venue')
-    start_date = forms.DateTimeField(label='Start Date', widget=DateTimeInput)
-    end_date = forms.DateTimeField(label='End Date', widget=DateTimeInput)
+
+class EventForm(ModelForm):
     organizer = forms.ModelChoiceField(queryset=User.objects.all().order_by('last_name'), initial='FIXED')
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+        widgets = {
+            'start_date': forms.widgets.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_date': forms.widgets.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }

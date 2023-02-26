@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from events.models import Event, Participant
 from users.models import User
-from .forms import LoginForm, RegisterUserForm, CreateEventForm
+from .forms import LoginForm, RegisterUserForm, EventForm
 
 default_password = "defaultpassword"
 
@@ -22,6 +22,7 @@ def register_user(request):
     template = 'pages/register_user.html'
     register_user_form = RegisterUserForm()
     context = {'register_user_form': register_user_form}
+    # if request is a POST request, then save the user to the database
     if request.method == 'POST':
         register_user_form = RegisterUserForm(request.POST)
         if register_user_form.is_valid():
@@ -44,6 +45,7 @@ def register_user(request):
 def login_view(request):
     template = 'pages/login.html'
     context = {'LoginForm': LoginForm}
+    # if request is a POST request, perform the login process
     if request.method == 'POST':
         login_form = LoginForm(request.POST)
         if login_form.is_valid():
@@ -92,6 +94,7 @@ def event_details(request, event_id):
 def event_manage(request):
     template = 'pages/event/manage_event.html'
     events = Event.objects.all()
+    # if request is a POST request, get the list of events to be deleted and delete those events
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))['delete_list']
 
@@ -105,10 +108,11 @@ def event_manage(request):
 
 def event_create(request):
     template = 'pages/event/create_event.html'
-    create_event_form = CreateEventForm()
+    create_event_form = EventForm()
     context = {'create_event_form': create_event_form}
+    # if request is a POST request, then save the event to the database
     if request.method == 'POST':
-        create_event_form = CreateEventForm(request.POST)
+        create_event_form = EventForm(request.POST)
         if create_event_form.is_valid():
             title = create_event_form.cleaned_data['title']
             description = create_event_form.cleaned_data['description']
@@ -128,8 +132,8 @@ def event_create(request):
 
 def event_edit(request, event_id):
     template = 'pages/event/edit_event.html'
-    event = Event.objects.get(pk=event_id)
-    context = {"event_form": CreateEventForm(), "event": event}
+    event_form = EventForm(instance=Event.objects.get(pk=event_id))
+    context = {"event_form": event_form}
     return render(request, template, context)
 
 
@@ -139,6 +143,7 @@ def event_participate(request, event_id):
     context = {
         'event': event,
     }
+    # if request is a POST request, then get the info of the participant and the event and save it to the database
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))
         user = User.objects.get(user_id=data['user_id'])

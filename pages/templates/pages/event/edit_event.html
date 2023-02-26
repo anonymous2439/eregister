@@ -5,10 +5,7 @@
 
 <form method="post">
     {% csrf_token %}
-    {% for field in event_form %}
-        {{ field.label_tag }}
-        {{ field }}
-    {% endfor %}
+    {{ event_form }}
     <button type="submit">Submit</button>
 </form>
 {% endblock content %}
