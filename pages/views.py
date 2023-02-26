@@ -92,6 +92,14 @@ def event_details(request, event_id):
 def event_manage(request):
     template = 'pages/event/manage_event.html'
     events = Event.objects.all()
+    if request.method == "POST":
+        data = json.loads(request.body.decode('utf-8'))['delete_list']
+
+        for data_id in data:
+            Event.objects.get(pk=int(data_id)).delete()
+        messages.add_message(request, messages.SUCCESS, 'Selected events deleted...')
+        response = {'isSuccess': True, }
+        return JsonResponse(response)
     return render(request, template, {"events": events})
 
 
@@ -115,6 +123,13 @@ def event_create(request):
             else:
                 messages.add_message(request, messages.ERROR, 'An error occurred while trying to create the event')
 
+    return render(request, template, context)
+
+
+def event_edit(request, event_id):
+    template = 'pages/event/edit_event.html'
+    event = Event.objects.get(pk=event_id)
+    context = {"event_form": CreateEventForm(), "event": event}
     return render(request, template, context)
 
 

@@ -1,5 +1,6 @@
 from django import forms
 
+from events.models import Event
 from users.models import User
 
 

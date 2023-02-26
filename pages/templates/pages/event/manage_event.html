@@ -23,7 +23,7 @@
         <td>{{ event.description }}</td>
         <td>{{ event.start_date }}</td>
         <td>{{ event.end_date }}</td>
-        <td><a href="{% url 'event_participate' event_id=event.id %}">Accept Participants</a></td>
+        <td><a href="{% url 'event_edit' event_id=event.id %}">Edit</a></td>
     </tr>
 {% endfor %}
 </table>
@@ -32,11 +32,41 @@
 {% block scripts %}
 <script>
 var values = [];
+
+function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+$.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", '{{csrf_token}}');
+        }
+      }
+});
+
 $("#trigger").on("click", function(){
     $.each($("input[name='events_checkbox']:checked"), function(){
       values.push($(this).val());
     });
-    alert("selected: "+values);
+
+    $.ajax({
+          type: 'POST',
+          contentType: 'application/json; charset=utf-8',
+          data: JSON.stringify({"delete_list": values}),
+          dataType: 'json',
+          success: function(response){
+                if(response["isSuccess"]){
+
+                }
+                else{
+                    alert("error");
+                }
+            },
+           error: function(response){
+                alert("error");
+           }
+    });
 })
 </script>
 {% endblock scripts %}
