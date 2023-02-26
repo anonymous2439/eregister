@@ -1,4 +1,4 @@
-# EASYMATH V1.0
+# E-register V1.0
 (powered by django)
 
 ### How to run the project
