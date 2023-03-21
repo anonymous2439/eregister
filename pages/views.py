@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, logout, login
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.utils import timezone
+
 from events.models import Event, Participant
 from users.models import User
 from .forms import LoginForm, RegisterUserForm, EventForm
@@ -14,8 +16,8 @@ default_password = "defaultpassword"
 
 def home(request):
     template = 'pages/index.html'
-
-    return render(request, template)
+    upcoming_events = Event.objects.filter(start_date__gte=timezone.now()).order_by('start_date')
+    return render(request, template, {'upcoming_events': upcoming_events})
 
 
 def register_user(request):

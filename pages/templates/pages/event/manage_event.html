@@ -8,6 +8,7 @@
     <a id="trigger" href="javascript:;">Delete</a>
 </div>
 <table class="events-tbl">
+    <thead>
     <tr>
         <th></th>
         <th>Title</th>
@@ -16,6 +17,8 @@
         <th>End Date</th>
         <th></th>
     </tr>
+    </thead>
+    <tbody>
 {% for event in events %}
     <tr>
         <td><input name="events_checkbox" type="checkbox" value="{{ event.pk }}" /></td>
@@ -25,6 +28,7 @@
         <td>{{ event.end_date }}</td>
         <td><a href="{% url 'event_edit' event_id=event.id %}">Edit</a></td>
     </tr>
+    </tbody>
 {% endfor %}
 </table>
 {% endblock content %}

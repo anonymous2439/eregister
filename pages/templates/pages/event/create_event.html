@@ -2,10 +2,12 @@
 {% load static %}
 
 {% block content %}
-
-<form method="post">
-    {% csrf_token %}
-    {{ create_event_form }}
-    <button type="submit">Submit</button>
-</form>
+<div class="create_event_form_con">
+    <form method="post" class="v_form">
+        <h2>Create Event</h2>
+        {% csrf_token %}
+        {{ create_event_form }}
+        <button type="submit">Submit</button>
+    </form>
+</div>
 {% endblock content %}

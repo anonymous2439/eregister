@@ -2,5 +2,13 @@
 {% load static %}
 
 {% block content %}
-<h2>Homepage</h2>
+<h2>Dashboard</h2>
+<div class="upcoming_events">
+    <h4>Upcoming Events</h4>
+    <ul class="event_list">
+    {% for upcoming_event in upcoming_events %}
+        <li><a href="{% url 'event_details' event_id=upcoming_event.pk %}">{{ upcoming_event.title }} at {{upcoming_event.start_date}} - {{upcoming_event.end_date}}</a> | <a href="{% url 'event_participate' event_id=upcoming_event.pk %}">Accept Participants</a></li>
+    {% endfor %}
+    </ul>
+</div>
 {% endblock content %}

@@ -2,8 +2,9 @@
 {% load static %}
 
 {% block content %}
-<h1>Events (events this user organizes)</h1>
+<h1>Your Events</h1>
 <table>
+    <thead>
     <tr>
         <th>Title</th>
         <th>Description</th>
@@ -11,6 +12,8 @@
         <th>End Date</th>
         <th></th>
     </tr>
+    </thead>
+    <tbody>
 {% for event in events %}
     <tr>
         <td><a href="{% url 'event_details' event_id=event.pk %}">{{ event.title }}</a></td>
@@ -20,6 +23,8 @@
         <td><a href="{% url 'event_participate' event_id=event.id %}">Accept Participants</a></td>
     </tr>
 {% endfor %}
+
+    </tbody>
 </table>
 
 {% endblock content %}
