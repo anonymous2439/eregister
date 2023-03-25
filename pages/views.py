@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from events.models import Event, Participant
@@ -140,9 +140,15 @@ def event_create(request):
 
 @login_required
 def event_edit(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    if request.method == 'POST':
+        event_form = EventForm(request.POST, instance=event)
+        if event_form.is_valid():
+            event_form.save()
+    else:
+        event_form = EventForm(instance=event)
     template = 'pages/event/edit_event.html'
-    event_form = EventForm(instance=Event.objects.get(pk=event_id))
-    context = {"event_form": event_form}
+    context = {"event_form": event_form, "event_id": event_id}
     return render(request, template, context)
 
 
