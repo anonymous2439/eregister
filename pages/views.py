@@ -104,10 +104,12 @@ def event_manage(request):
     # if request is a POST request, get the list of events to be deleted and delete those events
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))['delete_list']
-
-        for data_id in data:
-            Event.objects.get(pk=int(data_id)).delete()
-        messages.add_message(request, messages.SUCCESS, 'Selected events deleted...')
+        if not data:
+            messages.warning(request, 'No events selected.')
+        else:
+            for data_id in data:
+                Event.objects.get(pk=int(data_id)).delete()
+            messages.success(request, 'Selected events deleted...')
         response = {'isSuccess': True, }
         return JsonResponse(response)
     return render(request, template, {"events": events})
