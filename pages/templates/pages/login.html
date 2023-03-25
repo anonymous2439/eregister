@@ -2,8 +2,9 @@
 {% load static %}
 
 {% block content %}
-<form id="login-form" method="post">
+<form id="login-form" class="v_form" method="post">
     {% csrf_token %}
+    <h2>Log-In</h2>
     {{ LoginForm }}
     <button type="submit">Login</button>
 </form>

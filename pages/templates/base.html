@@ -10,22 +10,20 @@
 </head>
 <body>
     <div class="main_nav">
+        {% if user and user.is_authenticated %}
         <h2 id="user_info">Logged in as: <span>{{ user }}</span></h2>
+        {% else %}
+        <h2 id="user_info">You are not logged in</span></h2>
+        {% endif %}
         <nav>
+            {% if user and user.is_authenticated %}
             <ul>
                 <li><a href="{% url 'home' %}">Dashboard</a></li>
                 <li><a href="{% url 'event_home' %}">Events</a></li>
             </ul>
+            {% endif %}
         </nav>
 
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <h3>--ALERT MESSAGES</h3>
-            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
         <div class="user_functions">
             <div>
                 {% if user and user.is_authenticated %}
@@ -57,6 +55,13 @@
     <main>
         <div class="wrapper">
             <div class="main_con">
+                    {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
 
                     {% block content %} {% endblock content %}
 

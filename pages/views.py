@@ -3,6 +3,7 @@ import json
 import django
 from django.contrib import messages
 from django.contrib.auth import authenticate, logout, login
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -14,6 +15,7 @@ from .forms import LoginForm, RegisterUserForm, EventForm
 default_password = "defaultpassword"
 
 
+@login_required
 def home(request):
     template = 'pages/index.html'
     upcoming_events = Event.objects.filter(start_date__gte=timezone.now()).order_by('start_date')
@@ -69,6 +71,7 @@ def logout_user(request):
     return redirect('home')
 
 
+@login_required
 def event_home(request):
     template = 'pages/event/index.html'
     user = request.user
@@ -80,6 +83,7 @@ def event_home(request):
     return render(request, template, context)
 
 
+@login_required
 def event_details(request, event_id):
     template = 'pages/event/event_details.html'
     event = Event.objects.get(pk=event_id)
@@ -93,6 +97,7 @@ def event_details(request, event_id):
     return render(request, template, context)
 
 
+@login_required
 def event_manage(request):
     template = 'pages/event/manage_event.html'
     events = Event.objects.all()
@@ -108,6 +113,7 @@ def event_manage(request):
     return render(request, template, {"events": events})
 
 
+@login_required
 def event_create(request):
     template = 'pages/event/create_event.html'
     create_event_form = EventForm()
@@ -132,6 +138,7 @@ def event_create(request):
     return render(request, template, context)
 
 
+@login_required
 def event_edit(request, event_id):
     template = 'pages/event/edit_event.html'
     event_form = EventForm(instance=Event.objects.get(pk=event_id))
@@ -139,6 +146,7 @@ def event_edit(request, event_id):
     return render(request, template, context)
 
 
+@login_required
 def event_participate(request, event_id):
     template = "pages/event/participate.html"
     event = Event.objects.get(pk=event_id)

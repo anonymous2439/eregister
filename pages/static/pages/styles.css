@@ -34,11 +34,21 @@ main h1 { margin-bottom: 60px; }
 .user_functions ul li a::before { content: ">"; position: absolute; left: 0; }
 .user_functions ul li a:hover { text-decoration: underline; }
 
+#login-form {max-width: 500px;margin: 0 auto;}
+
 .register_form_con { max-width: 500px; margin: 0 auto; }
 
 .edit_event_form_con { max-width: 800px; margin: 0 auto; }
 
 .create_event_form_con { max-width: 800px; margin: 0 auto; }
+
+/* alert messages */
+ .messages { padding: 0; }
+ .messages li { color: #fff; padding: 15px; font-weight: 700; text-align: center; }
+.messages .error { background: #ce0000; }
+.messages .success { background: #008bcf; }
+ .messages .warning { background: #ff9100; }
+
 
 /* v_form */
 .v_form { background: var(--color-primary); padding: 40px 15px; width: 100%; color: #fff; display: flex;flex-wrap: wrap;}
