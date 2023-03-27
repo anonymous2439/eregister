@@ -151,6 +151,7 @@ def event_edit(request, event_id):
         event_form = EventForm(instance=event)
     template = 'pages/event/edit_event.html'
     context = {"event_form": event_form, "event_id": event_id}
+    print('test')
     return render(request, template, context)
 
 
