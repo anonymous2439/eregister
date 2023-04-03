@@ -15,10 +15,16 @@ from django.utils.timezone import now
 
 from events.models import Event, Participant
 from users.models import User
+
 from .forms import LoginForm, RegisterUserForm, EventForm, CreateEventForm
 
 DEFAULT_PASSWORD = "defaultpassword"
 PAGE_ITEMS_PER_PAGE = 1
+
+from .forms import LoginForm, UserForm, EventForm, CreateEventForm
+
+DEFAULT_PASSWORD = "defaultpassword"
+PAGE_ITEMS_PER_PAGE = 5
 
 
 @login_required
@@ -76,6 +82,44 @@ def register_user(request):
     # if request is a POST request, then save the user to the database
     if request.method == 'POST':
         register_user_form = RegisterUserForm(request.POST)
+
+
+@login_required
+def user_manage(request):
+    template = 'pages/user/manage_user.html'
+    users = User.objects.all()
+
+    # if request is a POST request, get the list of users to be deleted and delete those events
+    if request.method == "POST":
+        data = json.loads(request.body.decode('utf-8'))['delete_list']
+        if not data:
+            messages.warning(request, 'No users selected.')
+        else:
+            for data_id in data:
+                User.objects.get(pk=int(data_id)).delete()
+            messages.success(request, 'Selected events deleted...')
+        response = {'isSuccess': True, }
+        return JsonResponse(response)
+
+    # if request is a GET request, search for related columns using the search_val variable
+    if request.method == "GET":
+        search_val = request.GET.get('s', '')
+        users = users.filter(Q(email__icontains=search_val))
+
+        # Pagination for table
+        paginator = Paginator(users, PAGE_ITEMS_PER_PAGE)
+        page = request.GET.get('page')
+        users = paginator.get_page(page)
+    return render(request, template, {'users': users})
+
+
+def register_user(request):
+    template = 'pages/user/register_user.html'
+    register_user_form = UserForm()
+    context = {'register_user_form': register_user_form}
+    # if request is a POST request, then save the user to the database
+    if request.method == 'POST':
+        register_user_form = UserForm(request.POST)
         if register_user_form.is_valid():
             email = register_user_form.cleaned_data['email']
             password = DEFAULT_PASSWORD
@@ -90,6 +134,22 @@ def register_user(request):
                 messages.add_message(request, messages.SUCCESS, "User successfully registered")
             else:
                 messages.add_message(request, messages.ERROR, "An error occurred while trying to save the user record...")
+    return render(request, template, context)
+
+
+@login_required
+def user_edit(request, user_id):
+    template = 'pages/user/edit_user.html'
+    user = get_object_or_404(User, pk=user_id)
+    # Edit user details
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=user)
+        if user_form.is_valid():
+            user_form.save()
+            return redirect('user_manage')
+    else:
+        user_form = UserForm(instance=user)
+    context = {"user_form": user_form, "user_id": user_id}
     return render(request, template, context)
 
 
@@ -167,8 +227,9 @@ def event_manage(request):
         # Pagination for table
         paginator = Paginator(events, PAGE_ITEMS_PER_PAGE)
         page = request.GET.get('page')
-        items = paginator.get_page(page)
-    return render(request, template, {'events': items})
+        events = paginator.get_page(page)
+    return render(request, template, {'events': events})
+
 
 
 
@@ -201,10 +262,14 @@ def event_create(request):
 def event_edit(request, event_id):
     template = 'pages/event/edit_event.html'
     event = get_object_or_404(Event, pk=event_id)
+
+    # edit event details
     if request.method == 'POST':
         event_form = EventForm(request.POST, instance=event)
         if event_form.is_valid():
             event_form.save()
+
+            return redirect('event_manage')
     else:
         event_form = EventForm(instance=event)
     context = {"event_form": event_form, "event_id": event_id}
