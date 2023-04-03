@@ -1,25 +1,72 @@
+from datetime import datetime, timedelta
 import json
 
 import django
 from django.contrib import messages
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.db.models.functions import TruncMonth
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.utils.timezone import now
 
 from events.models import Event, Participant
 from users.models import User
-from .forms import LoginForm, RegisterUserForm, EventForm
+from .forms import LoginForm, RegisterUserForm, EventForm, CreateEventForm
 
-default_password = "defaultpassword"
+DEFAULT_PASSWORD = "defaultpassword"
+PAGE_ITEMS_PER_PAGE = 1
 
 
 @login_required
 def home(request):
     template = 'pages/index.html'
     upcoming_events = Event.objects.filter(start_date__gte=timezone.now()).order_by('start_date')
-    return render(request, template, {'upcoming_events': upcoming_events})
+    # Get the count of events and participants by month
+    start_date = datetime.now() - timedelta(days=365)
+    events_by_month = Event.objects.filter(start_date__gte=start_date).annotate(month=TruncMonth('start_date')).values(
+        'month').annotate(count=Count('id'))
+    participants_by_month = Participant.objects.filter(event__start_date__gte=start_date).annotate(
+        month=TruncMonth('event__start_date')).values('month').annotate(count=Count('id'))
+
+    # Convert the data to a list of tuples
+    data = []
+    months = set()
+    for event_count in events_by_month:
+        month = event_count['month'].strftime('%Y-%m')
+        count = event_count['count']
+        months.add(month)
+        data.append((month, count, 0))
+    for participant_count in participants_by_month:
+        month = participant_count['month'].strftime('%Y-%m')
+        count = participant_count['count']
+        months.add(month)
+        for i in range(len(data)):
+            if data[i][0] == month:
+                data[i] = (month, data[i][1], count)
+                break
+        else:
+            data.append((month, 0, count))
+
+    # Sort the data by month
+    data.sort(key=lambda x: x[0])
+
+    # Get the top 10 participants
+    top_participants = Participant.objects.values('user__email', 'user__first_name', 'user__last_name').annotate(num_events=Count('event')).order_by('-num_events')[:10]
+    top_events = Event.objects.annotate(num_participants=Count('participant')).order_by('-num_participants')[:10]
+
+    context = {
+        'data': data,
+        'months': sorted(months),
+        'upcoming_events': upcoming_events,
+        'top_participants': top_participants,
+        'top_events': top_events,
+    }
+
+    return render(request, template, context)
 
 
 def register_user(request):
@@ -31,7 +78,7 @@ def register_user(request):
         register_user_form = RegisterUserForm(request.POST)
         if register_user_form.is_valid():
             email = register_user_form.cleaned_data['email']
-            password = default_password
+            password = DEFAULT_PASSWORD
             first_name = register_user_form.cleaned_data['first_name']
             middle_name = register_user_form.cleaned_data['middle_name']
             last_name = register_user_form.cleaned_data['last_name']
@@ -88,8 +135,6 @@ def event_details(request, event_id):
     template = 'pages/event/event_details.html'
     event = Event.objects.get(pk=event_id)
     participants = event.participant_set.all()
-    for participant in participants:
-        print(participant.user.first_name)
     context = {
         "event": event,
         "participants": participants,
@@ -101,6 +146,7 @@ def event_details(request, event_id):
 def event_manage(request):
     template = 'pages/event/manage_event.html'
     events = Event.objects.all()
+
     # if request is a POST request, get the list of events to be deleted and delete those events
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))['delete_list']
@@ -112,17 +158,28 @@ def event_manage(request):
             messages.success(request, 'Selected events deleted...')
         response = {'isSuccess': True, }
         return JsonResponse(response)
-    return render(request, template, {"events": events})
+
+    # if request is a GET request, search for related columns using the search_val variable
+    if request.method == "GET":
+        search_val = request.GET.get('s', '')
+        events = events.filter(Q(title__icontains=search_val))
+
+        # Pagination for table
+        paginator = Paginator(events, PAGE_ITEMS_PER_PAGE)
+        page = request.GET.get('page')
+        items = paginator.get_page(page)
+    return render(request, template, {'events': items})
+
 
 
 @login_required
 def event_create(request):
     template = 'pages/event/create_event.html'
-    create_event_form = EventForm()
+    create_event_form = CreateEventForm()
     context = {'create_event_form': create_event_form}
     # if request is a POST request, then save the event to the database
     if request.method == 'POST':
-        create_event_form = EventForm(request.POST)
+        create_event_form = CreateEventForm(request.POST)
         if create_event_form.is_valid():
             title = create_event_form.cleaned_data['title']
             description = create_event_form.cleaned_data['description']
@@ -142,6 +199,7 @@ def event_create(request):
 
 @login_required
 def event_edit(request, event_id):
+    template = 'pages/event/edit_event.html'
     event = get_object_or_404(Event, pk=event_id)
     if request.method == 'POST':
         event_form = EventForm(request.POST, instance=event)
@@ -149,9 +207,7 @@ def event_edit(request, event_id):
             event_form.save()
     else:
         event_form = EventForm(instance=event)
-    template = 'pages/event/edit_event.html'
     context = {"event_form": event_form, "event_id": event_id}
-    print('test')
     return render(request, template, context)
 
 

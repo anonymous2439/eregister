@@ -6,11 +6,123 @@
 <h2>Dashboard</h2>
 <div class="upcoming_events">
     <h4>Upcoming Events</h4>
-    <ul class="event_list">
-    {% for upcoming_event in upcoming_events %}
-        <li><a href="{% url 'event_details' event_id=upcoming_event.pk %}">{{ upcoming_event.title }} at {{upcoming_event.start_date}} - {{upcoming_event.end_date}}</a> | <a href="{% url 'event_participate' event_id=upcoming_event.pk %}">Accept Participants</a></li>
-    {% endfor %}
-    </ul>
+    <div class="event_list">
+        <ul>
+            {% for upcoming_event in upcoming_events %}
+                <li><a href="{% url 'event_details' event_id=upcoming_event.pk %}">{{ upcoming_event.title }} at {{upcoming_event.start_date}} - {{upcoming_event.end_date}}</a> | <a href="{% url 'event_participate' event_id=upcoming_event.pk %}">Accept Participants</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+<div class="charts">
+    <div class="chart_con top_pie_chart">
+        <div id="participants_pie_chart" style="width: 49%; height: 500px;"></div>
+        <div id="events_pie_chart" style="width: 49%; height: 500px;"></div>
+    </div>
+    <div class="chart_con" id="events_line_chart" style="width: 100%; height: 500px;"></div>
+    <div class="chart_con" id="participants_line_chart" style="width: 100%; height: 500px;"></div>
 </div>
 
 {% endblock content %}
+
+{% block scripts %}
+<!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Month', 'Events'],
+                {% for item in data %}
+                    ['{{ item.0 }}', {{ item.1 }}],
+                {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Monthly Events Count',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('events_line_chart'));
+
+            chart.draw(data, options);
+        }
+    </script>
+
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Month', 'Participants'],
+                {% for item in data %}
+                    ['{{ item.0 }}', {{ item.2 }}],
+                {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Monthly Participants Count',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.ColumnChart(document.getElementById('participants_line_chart'));
+
+            chart.draw(data, options);
+        }
+    </script>
+
+<!--Top participants pie chart-->
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Participant', 'Number of Participated Events'],
+                {% for participant in top_participants %}
+                    ['{{ participant.user__email }}', {{ participant.num_events }}],
+                {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Top 10 Participants',
+                is3D: true,
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('participants_pie_chart'));
+
+            chart.draw(data, options);
+        }
+    </script>
+
+<!--top 10 events-->
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Event', 'Number of Participants'],
+                {% for event in top_events %}
+                    ['{{ event }}', {{ event.num_participants }}],
+                {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Top 10 Events',
+                is3D: true,
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('events_pie_chart'));
+
+            chart.draw(data, options);
+        }
+    </script>
+{% endblock scripts %}
