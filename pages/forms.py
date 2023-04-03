@@ -15,22 +15,12 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
 
 
-<<<<<<< HEAD
-class RegisterUserForm(ModelForm):
-=======
 class UserForm(ModelForm):
->>>>>>> 8b39755 (first commit)
     email = forms.EmailField(label='Email')
     first_name = forms.CharField(label='First Name')
     middle_name = forms.CharField(label='Middle Name')
     last_name = forms.CharField(label='Last Name')
     user_id = forms.CharField(label='User ID')
-<<<<<<< HEAD
-
-    class Meta:
-        model = User
-        fields = ('email', 'first_name', 'middle_name', 'last_name', 'user_id')
-=======
     is_superuser = forms.BooleanField(label='Administrator', required=False)
 
     class Meta:
@@ -39,7 +29,6 @@ class UserForm(ModelForm):
         widgets = {
             'is_admin': forms.CheckboxInput(attrs={'class': 'v_form_checkbox'})
         }
->>>>>>> 8b39755 (first commit)
 
 
 class EventForm(ModelForm):

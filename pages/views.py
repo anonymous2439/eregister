@@ -16,7 +16,7 @@ from django.utils.timezone import now
 from events.models import Event, Participant
 from users.models import User
 
-from .forms import LoginForm, RegisterUserForm, EventForm, CreateEventForm
+from .forms import LoginForm, UserForm, EventForm, CreateEventForm
 
 DEFAULT_PASSWORD = "defaultpassword"
 PAGE_ITEMS_PER_PAGE = 1
@@ -77,11 +77,11 @@ def home(request):
 
 def register_user(request):
     template = 'pages/register_user.html'
-    register_user_form = RegisterUserForm()
+    register_user_form = UserForm()
     context = {'register_user_form': register_user_form}
     # if request is a POST request, then save the user to the database
     if request.method == 'POST':
-        register_user_form = RegisterUserForm(request.POST)
+        register_user_form = UserForm(request.POST)
 
 
 @login_required

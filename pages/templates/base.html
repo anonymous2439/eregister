@@ -29,13 +29,8 @@
                 {% if user and user.is_authenticated %}
                     <ul>
                         {% if user.is_superuser %}
-<<<<<<< HEAD
-                        <li><a href="{% url 'event_manage' %}">Manage Event</a></li>
-                        <li><a href="{% url 'register_user' %}">Register User</a></li>
-=======
                         <li><a href="{% url 'event_manage' %}">Manage Events</a></li>
                         <li><a href="{% url 'user_manage' %}">Manage Users</a></li>
->>>>>>> 8b39755 (first commit)
                         {% endif %}
                     </ul>
                 {% endif %}
