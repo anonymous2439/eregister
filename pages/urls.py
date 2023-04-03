@@ -4,7 +4,13 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+<<<<<<< HEAD
     path('register/', views.register_user, name='register_user'),
+=======
+    path('user/manage/', views.user_manage, name='user_manage'),
+    path('register/', views.register_user, name='register_user'),
+    path('user/edit/<int:user_id>/', views.user_edit, name='user_edit'),
+>>>>>>> 8b39755 (first commit)
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_user, name='logout'),
     path('events/', views.event_home, name='event_home'),

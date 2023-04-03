@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Manage Users</h1>
+<div class="links">
+    <a href="{% url 'register_user' %}">Register User</a>
+    <a id="trigger" href="javascript:;">Delete</a>
+</div>
+<div class="search">
+    <form method="GET">
+        <input type="text" name="s" placeholder="Search User ID" />
+        <button type="submit">Search</button>
+    </form>
+</div>
+<table class="users-tbl">
+    <thead>
+    <tr>
+        <th></th>
+        <th>User ID</th>
+        <th>Email</th>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Middle Name</th>
+        <th>Administrator</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+{% for user in users %}
+    <tr>
+        <td><input name="users_checkbox" type="checkbox" value="{{ user.pk }}" /></td>
+        <td>{{ user.user_id }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.middle_name }}</td>
+        <td>{{ user.is_superuser }}</td>
+        <td><a href="{% url 'user_edit' user_id=user.id %}">Edit</a></td>
+    </tr>
+    </tbody>
+{% endfor %}
+</table>
+
+{% if users.has_other_pages %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if users.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ users.previous_page_number }}">previous</a>
+            {% endif %}
+
+            {% for page_num in users.paginator.page_range %}
+                {% if users.number == page_num %}
+                    <span class="current-page">{{ page_num }}</span>
+                {% else %}
+                    <a href="?page={{ page_num }}">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}">next</a>
+                <a href="?page={{ users.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+var values = [];
+
+function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+$.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", '{{csrf_token}}');
+        }
+      }
+});
+
+$("#trigger").on("click", function(){
+    $.each($("input[name='users_checkbox']:checked"), function(){
+      values.push($(this).val());
+    });
+
+    $.ajax({
+          type: 'POST',
+          contentType: 'application/json; charset=utf-8',
+          data: JSON.stringify({"delete_list": values}),
+          dataType: 'json',
+          success: function(response){
+                if(response["isSuccess"]){
+                    window.location.href = "{% url 'user_manage' %}";
+                }
+                else{
+                    alert("error");
+                }
+            },
+           error: function(response){
+                alert("error");
+           }
+    });
+})
+</script>
+{% endblock scripts %}
