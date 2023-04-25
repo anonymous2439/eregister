@@ -9,8 +9,12 @@
 <p>Start Date: {{ event.start_date }}</p>
 <p>End Date: {{ event.end_date }}</p>
 <p>Organizer: {{ event.organizer }}</p>
+<a class="btn btn-primary" href="{% url 'event_participate' event_id=event.pk %}">Accept Participants</a>
 <h2>Participants ({{ participants.count }})</h2>
+
+<ol>
 {% for participant in participants %}
-<p>{{ participant.user.last_name }}, {{ participant.user.first_name }} {{ participant.user.middle_name }} - participated on {{ participant.date_participated }}</p>
+    <li>{{ participant.user.last_name }}, {{ participant.user.first_name }} {{ participant.user.middle_name }} - participated on {{ participant.date_participated }}</li>
 {% endfor %}
+</ol>
 {% endblock content %}

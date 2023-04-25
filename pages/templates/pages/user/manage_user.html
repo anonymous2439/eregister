@@ -84,28 +84,36 @@ $.ajaxSetup({
       }
 });
 
+<!--ON DELETE-->
 $("#trigger").on("click", function(){
-    $.each($("input[name='users_checkbox']:checked"), function(){
-      values.push($(this).val());
-    });
+    var content = {
+        'title': 'Delete Users?',
+        'body': 'Are you sure you want to delete the selected users?, you won\'t be able to revert this.',
+        'onYes': function(){
+            $.each($("input[name='users_checkbox']:checked"), function(){
+              values.push($(this).val());
+            });
+            $.ajax({
+             type: 'POST',
+             contentType: 'application/json; charset=utf-8',
+             data: JSON.stringify({"delete_list": values}),
+             dataType: 'json',
+                 success: function(response){
+                     if(response["isSuccess"]){
+                            window.location.href = "{% url 'user_manage' %}";
+                     }
+                     else{
+                         alert("error");
+                     }
+                 },
+                 error: function(response){
+                     alert("error");
+                 }
+            });
+        }
+    }
+    showModal(content);
 
-    $.ajax({
-          type: 'POST',
-          contentType: 'application/json; charset=utf-8',
-          data: JSON.stringify({"delete_list": values}),
-          dataType: 'json',
-          success: function(response){
-                if(response["isSuccess"]){
-                    window.location.href = "{% url 'user_manage' %}";
-                }
-                else{
-                    alert("error");
-                }
-            },
-           error: function(response){
-                alert("error");
-           }
-    });
 })
 </script>
 {% endblock scripts %}

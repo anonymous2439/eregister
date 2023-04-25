@@ -7,11 +7,11 @@
 <div class="upcoming_events">
     <h4>Upcoming Events</h4>
     <div class="event_list">
-        <ul>
+        <ol>
             {% for upcoming_event in upcoming_events %}
                 <li><a href="{% url 'event_details' event_id=upcoming_event.pk %}">{{ upcoming_event.title }} at {{upcoming_event.start_date}} - {{upcoming_event.end_date}}</a> | <a href="{% url 'event_participate' event_id=upcoming_event.pk %}">Accept Participants</a></li>
             {% endfor %}
-        </ul>
+        </ol>
     </div>
 
 </div>

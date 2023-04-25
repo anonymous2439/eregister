@@ -46,6 +46,9 @@ main h1 { margin-bottom: 60px; }
 
 .create_event_form_con { max-width: 800px; margin: 0 auto; }
 
+.btn.btn-primary { background: var(--color-secondary); padding: 15px; text-decoration: none; color: #fff; transition: .6s; display: block; width: 150px; text-align: center;}
+.btn.btn-primary:hover { opacity: .7; }
+
 /* alert messages */
  .messages { padding: 0; }
  .messages li { color: #fff; padding: 15px; font-weight: 700; text-align: center; }
@@ -53,6 +56,17 @@ main h1 { margin-bottom: 60px; }
 .messages .success { background: #008bcf; }
  .messages .warning { background: #ff9100; }
 
+/* modal */
+#modal_alert { position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
+#modal_overlay{background: #0000006F;position: absolute;top: 0;left: 0;right: 0;bottom: 0;}
+#modal { width: 100%; max-width: 500px; margin: 0 auto; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); background: #fff; box-shadow: 0px 0px 10px 10px #0000001a; border: 1px solid var(--color-primary); text-align:center;}
+.modal_header { padding: 15px; border-bottom: 1px solid var(--color-primary); }
+.modal_header h2 { margin: 0; text-transform: uppercase; }
+.modal_footer { padding: 15px; border-top: 1px solid var(--color-primary); display: flex;column-gap: 20px;justify-content: end;}
+.modal_footer button { cursor: pointer;color: #fff; text-align: center; display: block; line-height: 30px; background: var(--color-secondary); text-decoration: none; transition: .6s; border: none; width: 80px; }
+.modal_footer button:last-child { background: var(--color-primary); }
+.modal_footer button:hover { opacity: .7; }
+.modal_body { padding: 15px; }
 
 /* v_form */
 .v_form { background: var(--color-primary); padding: 40px 15px; width: 100%; color: #fff; display: flex;flex-wrap: wrap;}
@@ -72,6 +86,8 @@ main h1 { margin-bottom: 60px; }
 
 /* dashboard */
 .event_list { max-height: 300px; border: 1px solid #1a1a1a; padding: 10px; overflow: auto; margin-bottom:40px; }
+.event_list ol li a { color: var(--color-primary); text-decoration: none; }
+.event_list ol li a:hover { text-decoration: underline; }
 .chart_con{box-shadow: 0px 0px 21px 4px #1a1a1a26;margin-bottom: 40px;padding:10px;}
 
 /* links */

@@ -97,7 +97,7 @@ def user_manage(request):
         else:
             for data_id in data:
                 User.objects.get(pk=int(data_id)).delete()
-            messages.success(request, 'Selected events deleted...')
+            messages.success(request, 'Selected users deleted...')
         response = {'isSuccess': True, }
         return JsonResponse(response)
 
@@ -146,6 +146,7 @@ def user_edit(request, user_id):
         user_form = UserForm(request.POST, instance=user)
         if user_form.is_valid():
             user_form.save()
+            messages.add_message(request, messages.SUCCESS, "User profile changes has been saved...")
             return redirect('user_manage')
     else:
         user_form = UserForm(instance=user)
