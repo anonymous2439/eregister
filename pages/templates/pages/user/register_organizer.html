@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="register_form_con">
+    <form id="register_form" class="v_form" method="post">
+        <h2>Register Organizer</h2>
+
+        {% csrf_token %}
+        {{ register_user_form }}
+        <div class="v_form_footer">
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+{% endblock content %}

@@ -2,9 +2,9 @@
 {% load static %}
 
 {% block content %}
-<h1>Manage Users</h1>
+<h1>Manage Organizers</h1>
 <div class="links">
-    <a href="{% url 'register_user' %}">Register User</a>
+    <a href="{% url 'register_organizer' %}">Register Organizer</a>
     <a id="trigger" href="javascript:;">Delete</a>
 </div>
 <div class="search">
@@ -100,7 +100,7 @@ $("#trigger").on("click", function(){
              dataType: 'json',
                  success: function(response){
                      if(response["isSuccess"]){
-                            window.location.href = "{% url 'user_manage' %}";
+                            window.location.href = "{% url 'organizer_manage' %}";
                      }
                      else{
                          alert("error");

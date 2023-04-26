@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.db import models
-from users.models import User
+from users.models import User, ParticipantUser
 
 
 class Event(models.Model):
@@ -17,15 +17,16 @@ class Event(models.Model):
 
 class Participant(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date_participated = models.DateTimeField(default=datetime.now, blank=True)
+    participant_user = models.ForeignKey(ParticipantUser, on_delete=models.CASCADE)
+    scan_in = models.DateTimeField(default=datetime.now, blank=True)
+    scan_out = models.DateTimeField(default=datetime.now, blank=True)
 
     def __str__(self):
-        return str(self.event)+' - '+str(self.user)
+        return str(self.event)+' - '+str(self.participant_user)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['event', 'user'], name='unique_event_user'
+                fields=['event', 'participant_user'], name='unique_event_participant'
             )
         ]

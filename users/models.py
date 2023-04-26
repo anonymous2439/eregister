@@ -23,3 +23,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class ParticipantUser(models.Model):
+    email = models.EmailField(_("email address"), unique=True)
+    first_name = models.CharField(max_length=50, blank=True)
+    middle_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    user_id = models.CharField(max_length=50, blank=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.email

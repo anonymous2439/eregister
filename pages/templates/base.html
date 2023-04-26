@@ -30,7 +30,8 @@
                     <ul>
                         {% if user.is_superuser %}
                         <li><a href="{% url 'event_manage' %}">Manage Events</a></li>
-                        <li><a href="{% url 'user_manage' %}">Manage Users</a></li>
+                        <li><a href="{% url 'organizer_manage' %}">Manage Organizers</a></li>
+                        <li><a href="{% url 'participant_manage' %}">Manage Participants</a></li>
                         {% endif %}
                     </ul>
                 {% endif %}

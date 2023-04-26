@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime, timedelta
 import json
 
@@ -5,26 +6,23 @@ import django
 from django.contrib import messages
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.db.models.functions import TruncMonth
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.timezone import now
+from django.utils.html import strip_tags
 
 from events.models import Event, Participant
-from users.models import User
+from users.models import User, ParticipantUser
 
-from .forms import LoginForm, UserForm, EventForm, CreateEventForm
+from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantForm
 
 DEFAULT_PASSWORD = "defaultpassword"
 PAGE_ITEMS_PER_PAGE = 1
-
-from .forms import LoginForm, UserForm, EventForm, CreateEventForm
-
-DEFAULT_PASSWORD = "defaultpassword"
-PAGE_ITEMS_PER_PAGE = 5
 
 
 @login_required
@@ -61,7 +59,7 @@ def home(request):
     data.sort(key=lambda x: x[0])
 
     # Get the top 10 participants
-    top_participants = Participant.objects.values('user__email', 'user__first_name', 'user__last_name').annotate(num_events=Count('event')).order_by('-num_events')[:10]
+    top_participants = Participant.objects.values('participant_user__email', 'participant_user__first_name', 'participant_user__last_name').annotate(num_events=Count('event')).order_by('-num_events')[:10]
     top_events = Event.objects.annotate(num_participants=Count('participant')).order_by('-num_participants')[:10]
 
     context = {
@@ -75,18 +73,9 @@ def home(request):
     return render(request, template, context)
 
 
-def register_user(request):
-    template = 'pages/register_user.html'
-    register_user_form = UserForm()
-    context = {'register_user_form': register_user_form}
-    # if request is a POST request, then save the user to the database
-    if request.method == 'POST':
-        register_user_form = UserForm(request.POST)
-
-
 @login_required
-def user_manage(request):
-    template = 'pages/user/manage_user.html'
+def organizer_manage(request):
+    template = 'pages/user/manage_organizer.html'
     users = User.objects.all()
 
     # if request is a POST request, get the list of users to be deleted and delete those events
@@ -113,8 +102,37 @@ def user_manage(request):
     return render(request, template, {'users': users})
 
 
-def register_user(request):
-    template = 'pages/user/register_user.html'
+@login_required
+def participant_manage(request):
+    template = 'pages/user/manage_participant.html'
+    participant_users = ParticipantUser.objects.all()
+
+    # if request is a POST request, get the list of users to be deleted and delete those events
+    if request.method == "POST":
+        data = json.loads(request.body.decode('utf-8'))['delete_list']
+        if not data:
+            messages.warning(request, 'No participants selected.')
+        else:
+            for data_id in data:
+                ParticipantUser.objects.get(pk=int(data_id)).delete()
+            messages.success(request, 'Selected users deleted...')
+        response = {'isSuccess': True, }
+        return JsonResponse(response)
+
+    # if request is a GET request, search for related columns using the search_val variable
+    if request.method == "GET":
+        search_val = request.GET.get('s', '')
+        participant_users = participant_users.filter(Q(email__icontains=search_val))
+
+        # Pagination for table
+        paginator = Paginator(participant_users, PAGE_ITEMS_PER_PAGE)
+        page = request.GET.get('page')
+        participant_users = paginator.get_page(page)
+    return render(request, template, {'participant_users': participant_users})
+
+
+def register_organizer(request):
+    template = 'pages/user/register_organizer.html'
     register_user_form = UserForm()
     context = {'register_user_form': register_user_form}
     # if request is a POST request, then save the user to the database
@@ -134,6 +152,28 @@ def register_user(request):
                 messages.add_message(request, messages.SUCCESS, "User successfully registered")
             else:
                 messages.add_message(request, messages.ERROR, "An error occurred while trying to save the user record...")
+    return render(request, template, context)
+
+
+def register_participant(request):
+    template = 'pages/user/register_participant.html'
+    register_participant_form = ParticipantForm()
+    context = {'register_participant_form': register_participant_form}
+    # if request is a POST request, then save the user to the database
+    if request.method == 'POST':
+        register_user_form = UserForm(request.POST)
+        if register_user_form.is_valid():
+            email = register_user_form.cleaned_data['email']
+            first_name = register_user_form.cleaned_data['first_name']
+            middle_name = register_user_form.cleaned_data['middle_name']
+            last_name = register_user_form.cleaned_data['last_name']
+            user_id = register_user_form.cleaned_data['user_id']
+            participant_user = ParticipantUser(email=email, first_name=first_name, middle_name=middle_name, last_name=last_name, user_id=user_id)
+            participant_user.save()
+            if participant_user is not None:
+                messages.add_message(request, messages.SUCCESS, "Participant successfully registered")
+            else:
+                messages.add_message(request, messages.ERROR, "An error occurred while trying to save the participant record...")
     return render(request, template, context)
 
 
@@ -184,9 +224,11 @@ def event_home(request):
     template = 'pages/event/index.html'
     user = request.user
     events = user.event_set.all()
+    today = datetime.now()
     context = {
         'user': user,
         'events': events,
+        'today': today,
     }
     return render(request, template, context)
 
@@ -196,9 +238,11 @@ def event_details(request, event_id):
     template = 'pages/event/event_details.html'
     event = Event.objects.get(pk=event_id)
     participants = event.participant_set.all()
+    today = datetime.now()
     context = {
         "event": event,
         "participants": participants,
+        "today": today,
     }
     return render(request, template, context)
 
@@ -230,8 +274,6 @@ def event_manage(request):
         page = request.GET.get('page')
         events = paginator.get_page(page)
     return render(request, template, {'events': events})
-
-
 
 
 @login_required
@@ -287,20 +329,66 @@ def event_participate(request, event_id):
     # if request is a POST request, then get the info of the participant and the event and save it to the database
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))
-        user = User.objects.get(user_id=data['user_id'])
+        participant_user = ParticipantUser.objects.get(user_id=data['user_id'])
         event = Event.objects.get(pk=data['event_id'])
+        participant = Participant(participant_user=participant_user, event=event)
         try:
-            participant = Participant(user=user, event=event)
             participant.save()
-            response = {
-                'participant_firstname': participant.user.first_name,
-                'participant_lastname': participant.user.last_name,
-                'participant_participated': participant.date_participated.strftime("%c"),
-                'message': "Thank you for joining the event!",
-                'isSuccess': True,
-            }
         except django.db.utils.IntegrityError:
-            response = {'message': "User has already participated in this event", 'isSuccess': False, }
-
+            participant = Participant.objects.get(participant_user=participant_user, event=event)
+            participant.scan_out = datetime.now()
+            participant.save()
+        response = {
+            'participant_firstname': participant.participant_user.first_name,
+            'participant_lastname': participant.participant_user.last_name,
+            'participant_participated': participant.scan_in.strftime("%c"),
+            'message': "Thank you for joining the event!",
+            'isSuccess': True,
+        }
         return JsonResponse(response)
     return render(request, template, context)
+
+
+def generate_csv(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    participants = event.participant_set.all()
+
+    # Get data to write to CSV
+    data = [
+        ['User ID', 'Email', 'First Name', 'Middle Name', 'Last Name', 'In', 'Out'],
+    ]
+
+    for participant in participants:
+        user = participant.participant_user
+        data.append([user.user_id, user.email, user.first_name, user.middle_name, user.last_name, participant.scan_in, participant.scan_out])
+
+    # Create a response object with CSV content type
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="data.csv"'
+
+    # Create a CSV writer object
+    writer = csv.writer(response)
+
+    # Write data to CSV
+    for row in data:
+        writer.writerow(row)
+
+    return response
+
+
+def send_survey(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    participants = event.participant_set.all()
+
+    subject = 'Eregister Survey'
+    # Render the HTML template and convert it to plain text
+    html_message = render_to_string('survey_email.html')
+    plain_message = strip_tags(html_message)
+    from_email = 'eregister@gmail.com'
+    to_emails = [participant.participant_user.email for participant in participants]
+
+    # Create the EmailMultiAlternatives object to send both HTML and plain text versions of the email
+    email = EmailMultiAlternatives(subject, plain_message, from_email, to_emails)
+    email.attach_alternative(html_message, "text/html")
+    email.send()
+    return redirect('event_details', event_id=event_id)

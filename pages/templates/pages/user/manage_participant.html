@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Manage Participants</h1>
+<div class="links">
+    <a href="{% url 'register_participant' %}">Register Participant</a>
+    <a id="trigger" href="javascript:;">Delete</a>
+</div>
+<div class="search">
+    <form method="GET">
+        <input type="text" name="s" placeholder="Search Participant ID" />
+        <button type="submit">Search</button>
+    </form>
+</div>
+<table class="users-tbl">
+    <thead>
+    <tr>
+        <th></th>
+        <th>User ID</th>
+        <th>Email</th>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Middle Name</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+{% for participant_user in participant_users %}
+    <tr>
+        <td><input name="users_checkbox" type="checkbox" value="{{ participant_user.pk }}" /></td>
+        <td>{{ participant_user.user_id }}</td>
+        <td>{{ participant_user.email }}</td>
+        <td>{{ participant_user.last_name }}</td>
+        <td>{{ participant_user.first_name }}</td>
+        <td>{{ participant_user.middle_name }}</td>
+        <td><a href="">Edit</a></td>
+    </tr>
+    </tbody>
+{% endfor %}
+</table>
+
+{% if users.has_other_pages %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if users.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ participant_users.previous_page_number }}">previous</a>
+            {% endif %}
+
+            {% for page_num in users.paginator.page_range %}
+                {% if users.number == page_num %}
+                    <span class="current-page">{{ page_num }}</span>
+                {% else %}
+                    <a href="?page={{ page_num }}">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if users.has_next %}
+                <a href="?page={{ participant_users.next_page_number }}">next</a>
+                <a href="?page={{ participant_users.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    var values = [];
+
+    function csrfSafeMethod(method) {
+          // these HTTP methods do not require CSRF protection
+          return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+    $.ajaxSetup({
+          beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", '{{csrf_token}}');
+            }
+          }
+    });
+
+    <!--ON DELETE-->
+    $("#trigger").on("click", function(){
+        var content = {
+            'title': 'Delete Users?',
+            'body': 'Are you sure you want to delete the selected users?, you won\'t be able to revert this.',
+            'onYes': function(){
+                $.each($("input[name='users_checkbox']:checked"), function(){
+                  values.push($(this).val());
+                });
+                $.ajax({
+                 type: 'POST',
+                 contentType: 'application/json; charset=utf-8',
+                 data: JSON.stringify({"delete_list": values}),
+                 dataType: 'json',
+                     success: function(response){
+                         if(response["isSuccess"]){
+                                window.location.href = "{% url 'participant_manage' %}";
+                         }
+                         else{
+                             alert("error");
+                         }
+                     },
+                     error: function(response){
+                         alert("error");
+                     }
+                });
+            }
+        }
+        showModal(content);
+
+    })
+</script>
+
+{% endblock scripts %}

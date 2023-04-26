@@ -130,3 +130,11 @@ LOGIN_URL = '/login/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = '2b66a41741f5a7'
+EMAIL_HOST_PASSWORD = '741fb57097b3b5'
+EMAIL_PORT = '2525'
+DEFAULT_FROM_EMAIL = 'sample@email.com'

@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.utils import timezone
 
 from events.models import Event
-from users.models import User
+from users.models import User, ParticipantUser
 
 
 class DateTimeInput(forms.DateInput):
@@ -21,14 +21,25 @@ class UserForm(ModelForm):
     middle_name = forms.CharField(label='Middle Name')
     last_name = forms.CharField(label='Last Name')
     user_id = forms.CharField(label='User ID')
-    is_superuser = forms.BooleanField(label='Administrator', required=False)
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'middle_name', 'last_name', 'user_id', 'is_superuser')
+        fields = ('email', 'first_name', 'middle_name', 'last_name', 'user_id')
         widgets = {
             'is_admin': forms.CheckboxInput(attrs={'class': 'v_form_checkbox'})
         }
+
+
+class ParticipantForm(ModelForm):
+    email = forms.EmailField(label='Email')
+    first_name = forms.CharField(label='First Name')
+    middle_name = forms.CharField(label='Middle Name')
+    last_name = forms.CharField(label='Last Name')
+    user_id = forms.CharField(label='User ID')
+
+    class Meta:
+        model = ParticipantUser
+        fields = ('email', 'first_name', 'middle_name', 'last_name', 'user_id')
 
 
 class EventForm(ModelForm):

@@ -3,7 +3,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from users.models import User
+from users.models import User, ParticipantUser
 
 from events.models import Participant, Event
 
@@ -22,13 +22,13 @@ def read_qr(request):
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))
         print(data)
-        user = User.objects.get(user_id=data['user_id'])
+        participant_user = ParticipantUser.objects.get(user_id=data['user_id'])
         event = Event.objects.get(pk=data['event_id'])
-        participant = Participant(user=user, event=event).save()
+        participant = Participant(participant_user=participant_user, event=event).save()
         # print(user)
         response = {
-            'id': user.user_id,
-            'email': user.email,
+            'id': participant_user.user_id,
+            'email': participant_user.email,
         }
         return JsonResponse({"message": "success", "data": response})
 
