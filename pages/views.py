@@ -19,7 +19,7 @@ from django.utils.html import strip_tags
 from events.models import Event, Participant
 from users.models import User, ParticipantUser
 
-from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantForm
+from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantForm, ParticipantUserForm
 
 DEFAULT_PASSWORD = "defaultpassword"
 PAGE_ITEMS_PER_PAGE = 1
@@ -187,9 +187,25 @@ def user_edit(request, user_id):
         if user_form.is_valid():
             user_form.save()
             messages.add_message(request, messages.SUCCESS, "User profile changes has been saved...")
-            return redirect('user_manage')
+            return redirect('organizer_manage')
     else:
         user_form = UserForm(instance=user)
+    context = {"user_form": user_form, "user_id": user_id}
+    return render(request, template, context)
+
+
+def participant_user_edit(request, user_id):
+    template = 'pages/user/edit_participant.html'
+    user = get_object_or_404(ParticipantUser, pk=user_id)
+    # Edit user details
+    if request.method == 'POST':
+        user_form = ParticipantUserForm(request.POST, instance=user)
+        if user_form.is_valid():
+            user_form.save()
+            messages.add_message(request, messages.SUCCESS, "User profile changes has been saved...")
+            return redirect('participant_manage')
+    else:
+        user_form = ParticipantUserForm(instance=user)
     context = {"user_form": user_form, "user_id": user_id}
     return render(request, template, context)
 

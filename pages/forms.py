@@ -30,6 +30,18 @@ class UserForm(ModelForm):
         }
 
 
+class ParticipantUserForm(ModelForm):
+    email = forms.EmailField(label='Email')
+    first_name = forms.CharField(label='First Name')
+    middle_name = forms.CharField(label='Middle Name')
+    last_name = forms.CharField(label='Last Name')
+    user_id = forms.CharField(label='User ID')
+
+    class Meta:
+        model = ParticipantUser
+        fields = ('email', 'first_name', 'middle_name', 'last_name', 'user_id')
+
+
 class ParticipantForm(ModelForm):
     email = forms.EmailField(label='Email')
     first_name = forms.CharField(label='First Name')

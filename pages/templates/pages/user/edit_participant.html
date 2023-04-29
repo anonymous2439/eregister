@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="edit_user_form_con">
+    <form method="post" class="v_form" action="{% url 'participant_user_edit' user_id=user_id %}">
+        {% csrf_token %}
+        {{ user_form }}
+        <div class="v_form_footer">
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+{% endblock content %}

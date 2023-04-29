@@ -34,7 +34,7 @@
         <td>{{ participant_user.last_name }}</td>
         <td>{{ participant_user.first_name }}</td>
         <td>{{ participant_user.middle_name }}</td>
-        <td><a href="">Edit</a></td>
+        <td><a href="{% url 'participant_user_edit' user_id=participant_user.id %}">Edit</a></td>
     </tr>
     </tbody>
 {% endfor %}
