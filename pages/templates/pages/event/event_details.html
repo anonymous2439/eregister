@@ -10,7 +10,7 @@
 <p>End Date: {{ event.end_date }}</p>
 <p>Organizer: {{ event.organizer }}</p>
 
-{% if event.end_date <= today %}
+{% if event.end_date >= today %}
   <a class="btn btn-primary" href="{% url 'event_participate' event_id=event.pk %}">Accept Participants</a>
 {% endif %}
 
