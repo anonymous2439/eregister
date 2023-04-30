@@ -1,6 +1,37 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block head %}
+    <style>
+        #close_scanner{
+            border: none;
+            background: var(--color-secondary);
+            color: #ffff;
+            padding: 10px 25px;
+            font-size: 18px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: .6s;
+        }
+        #close_scanner:hover{
+            background: var(--color-primary);
+            box-shadow: 0 0 0 1px var(--color-secondary);
+            color: var(--color-secondary);
+        }
+        #scan_qr {
+          color: #fff;
+          display: inline-block;
+          padding: 0 15px;
+          font-weight: 700;
+          font-size: 19px;
+        }
+
+        #scan_qr:hover {
+          text-decoration: none;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
 <div class="register_form_con">
     <form id="register_form" class="v_form" method="post">
@@ -9,8 +40,62 @@
         {% csrf_token %}
         {{ register_participant_form }}
         <div class="v_form_footer">
+            <a href="#!" id="scan_qr">Scan QR</a>
             <button type="submit">Submit</button>
         </div>
     </form>
+
+
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script src="{% static 'assets/instascan.min.js' %}"></script>
+<script type="text/javascript">
+
+    $("#scan_qr").on("click", function(){
+        var content = {
+            'title': 'Scan QR',
+            'body': '<video id="preview" style="width: 448px; height: 336px;"></video><button type="button" id="close_scanner">Close</button>',
+            'showFooter': false,
+            'outsideClick': false,
+        }
+        showModal(content);
+
+        var scanner = new Instascan.Scanner({ video: document.getElementById('preview'), scanPeriod: 5, mirror: false });
+        scanner.addListener('scan',function(content){
+            $("#id_user_id").val(content);
+            hideModal();
+            scanner.stop();
+        });
+        Instascan.Camera.getCameras().then(function (cameras){
+            if(cameras.length>0){
+                scanner.start(cameras[0]);
+                $('[name="options"]').on('change',function(){
+
+                    if(cameras[1]!=""){
+                        scanner.start(cameras[1]);
+                    }else{
+                        alert('No Back camera found!');
+                    }
+
+                });
+            }else{
+                console.error('No cameras found.');
+                alert('No cameras found.');
+            }
+        }).catch(function(e){
+            console.error(e);
+            alert(e);
+        });
+
+        $("#close_scanner").on("click", function(){
+            hideModal();
+            scanner.stop();
+        });
+    });
+
+
+
+</script>
+{% endblock scripts %}

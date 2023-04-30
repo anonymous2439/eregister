@@ -30,3 +30,8 @@ class Participant(models.Model):
                 fields=['event', 'participant_user'], name='unique_event_participant'
             )
         ]
+
+
+class Setting(models.Model):
+    name = models.CharField(max_length=50)
+    value = models.CharField(max_length=250)

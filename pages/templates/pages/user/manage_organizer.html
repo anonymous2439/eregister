@@ -6,6 +6,7 @@
 <div class="links">
     <a href="{% url 'register_organizer' %}">Register Organizer</a>
     <a id="trigger" href="javascript:;">Delete</a>
+    <a id="set_default" href="#!">Set Default Password</a>
 </div>
 <div class="search">
     <form method="GET">
@@ -66,6 +67,25 @@
     </div>
 {% endif %}
 
+<!--SET DEFAULT PASSWORD MODAL-->
+<!--<div id="modal_alert" style="display:none;">-->
+<!--    <div id="modal_overlay"></div>-->
+<!--    <div id="modal">-->
+<!--        <div class="modal_con">-->
+<!--            <div class="modal_header">-->
+<!--                <h2 id="modal_title">header</h2>-->
+<!--            </div>-->
+<!--            <div class="modal_body">-->
+<!--                <p id="modal_text">body</p>-->
+<!--            </div>-->
+<!--            <div id="modal_footer" class="modal_footer">-->
+<!--                <button id="modal_yes">Yes</button>-->
+<!--                <button id="modal_no">No</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
 {% endblock content %}
 
 {% block scripts %}
@@ -114,6 +134,8 @@ $("#trigger").on("click", function(){
     }
     showModal(content);
 
-})
+});
+
+
 </script>
 {% endblock scripts %}

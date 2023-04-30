@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.utils import timezone
 
-from events.models import Event
+from events.models import Event, Setting
 from users.models import User, ParticipantUser
 
 
@@ -13,6 +13,12 @@ class DateTimeInput(forms.DateInput):
 class LoginForm(forms.Form):
     email = forms.EmailField(label='Email')
     password = forms.CharField(widget=forms.PasswordInput, label='Password')
+
+
+class SettingForm(ModelForm):
+    class Meta:
+        model = Setting
+        fields = ('name', 'value',)
 
 
 class UserForm(ModelForm):

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="profile_con">
+  <h2>Profile</h2>
+  <p>
+    <span>User ID: </span> {{ user.user_id }}
+  </p>
+  <p>
+    <span>Email: </span> {{ user.email }}
+  </p>
+  <p>
+    <span>First Name: </span> {{ user.first_name }}
+  </p>
+  <p>
+    <span>Middle Name: </span> {{ user.middle_name }}
+  </p>
+  <p>
+    <span>Last Name: </span> {{ user.last_name }}
+  </p>
+
+  {% if request.user == user %}
+  <div class="profile_functions">
+    <ul>
+      <li><a href="#!">Edit Profile</a></li>
+      <li><a href="{% url 'password_reset' user_id=user.pk %}">Reset Password</a></li>
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}

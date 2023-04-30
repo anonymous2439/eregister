@@ -41,6 +41,7 @@
                         <li><a href="{% url 'login' %}">Log-in</a></li>
                         {% endif %}
                         {% if user and user.is_authenticated %}
+                        <li><a href="{% url 'profile' user_id=user.pk %}">Profile</a></li>
                         <li><a href="{% url 'logout' %}">Logout</a></li>
                         {% endif %}
                     </ul>
@@ -80,7 +81,7 @@
                 <div class="modal_body">
                     <p id="modal_text">body</p>
                 </div>
-                <div id="modal_footer" class="modal_footer">
+                <div id="modal_footer" class="modal_footer" style="display:none">
                     <button id="modal_yes">Yes</button>
                     <button id="modal_no">No</button>
                 </div>
@@ -94,14 +95,23 @@
         function showModal(content){
             $('#modal_title').html(content.title);
             $('#modal_text').html(content.body);
-            $("#modal_yes").on('click', content.onYes)
-            $("#modal_no").on('click', function(){
-                $('#modal_alert').hide();
-            });
-            $("#modal_overlay").on('click', function(){
-                $('#modal_alert').hide();
-            })
+            if(content.showFooter !== false)
+            {
+                $("#modal_footer").show();
+                $("#modal_yes").on('click', content.onYes)
+                $("#modal_no").on('click', function(){
+                    $('#modal_alert').hide();
+                });
+            }
+            if(content.outsideClick !== false){
+                $("#modal_overlay").on('click', function(){
+                    $('#modal_alert').hide();
+                });
+            }
             $('#modal_alert').show();
+        }
+        function hideModal(){
+            $('#modal_alert').hide();
         }
     </script>
 <!--    END INITIALIZE MODAL-->

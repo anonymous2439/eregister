@@ -19,7 +19,7 @@ from django.utils.html import strip_tags
 from events.models import Event, Participant
 from users.models import User, ParticipantUser
 
-from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantForm, ParticipantUserForm
+from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantForm, ParticipantUserForm, SettingForm
 
 DEFAULT_PASSWORD = "defaultpassword"
 PAGE_ITEMS_PER_PAGE = 1
@@ -27,14 +27,25 @@ PAGE_ITEMS_PER_PAGE = 1
 
 @login_required
 def home(request):
-    template = 'pages/index.html'
-    upcoming_events = Event.objects.filter(start_date__gte=timezone.now()).order_by('start_date')
+    template = 'pages/dashboard.html'
+    if request.user.is_superuser:
+        upcoming_events = Event.objects.filter(start_date__gte=timezone.now()).order_by('start_date')
+    else:
+        upcoming_events = Event.objects.filter(start_date__gte=timezone.now(), organizer=request.user).order_by('start_date')
     # Get the count of events and participants by month
     start_date = datetime.now() - timedelta(days=365)
-    events_by_month = Event.objects.filter(start_date__gte=start_date).annotate(month=TruncMonth('start_date')).values(
-        'month').annotate(count=Count('id'))
-    participants_by_month = Participant.objects.filter(event__start_date__gte=start_date).annotate(
-        month=TruncMonth('event__start_date')).values('month').annotate(count=Count('id'))
+    if request.user.is_superuser:
+        events_by_month = Event.objects.filter(start_date__gte=start_date).annotate(
+            month=TruncMonth('start_date')).values(
+            'month').annotate(count=Count('id'))
+        participants_by_month = Participant.objects.filter(event__start_date__gte=start_date).annotate(
+            month=TruncMonth('event__start_date')).values('month').annotate(count=Count('id'))
+    else:
+        events_by_month = Event.objects.filter(start_date__gte=start_date, organizer=request.user.is_superuser).annotate(
+            month=TruncMonth('start_date')).values(
+            'month').annotate(count=Count('id'))
+        participants_by_month = Participant.objects.filter(event__start_date__gte=start_date, event__organizer=request.user.is_superuser).annotate(
+            month=TruncMonth('event__start_date')).values('month').annotate(count=Count('id'))
 
     # Convert the data to a list of tuples
     data = []
@@ -74,9 +85,29 @@ def home(request):
 
 
 @login_required
+def profile(request, user_id):
+    template = 'pages/user/profile.html'
+    user = User.objects.get(pk=user_id)
+    context = { 'user': user }
+    return render(request, template, context)
+
+
+@login_required
+def reset_password(request, user_id):
+    messages.success(request, 'Password reset successfully!')
+    return redirect('profile', user_id=user_id)
+
+
+def set_default_password(request):
+    messages.success(request, 'Default Password is Set!')
+    return redirect('organizer_manage')
+
+
+@login_required
 def organizer_manage(request):
     template = 'pages/user/manage_organizer.html'
     users = User.objects.all()
+    setting_form = SettingForm()
 
     # if request is a POST request, get the list of users to be deleted and delete those events
     if request.method == "POST":
@@ -99,7 +130,7 @@ def organizer_manage(request):
         paginator = Paginator(users, PAGE_ITEMS_PER_PAGE)
         page = request.GET.get('page')
         users = paginator.get_page(page)
-    return render(request, template, {'users': users})
+    return render(request, template, {'users': users, 'setting_form': setting_form,})
 
 
 @login_required
