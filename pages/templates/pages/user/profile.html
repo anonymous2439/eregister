@@ -24,9 +24,28 @@
   <div class="profile_functions">
     <ul>
       <li><a href="#!">Edit Profile</a></li>
+      <li><a id="change_password" href="#!">Change Password</a></li>
       <li><a href="{% url 'password_reset' user_id=user.pk %}">Reset Password</a></li>
     </ul>
   </div>
   {% endif %}
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script>
+    $('#change_password').on("click", function(){
+        var content = {
+            'title': 'Change Password',
+            'body': '{{ change_password_form }}',
+            'showFooter': false,
+            'outsideClick': true,
+            'showFooter': true,
+            'onYes': function(){
+              alert('test');
+            }
+        }
+        showModal(content);
+    });
+</script>
+{% endblock scripts %}

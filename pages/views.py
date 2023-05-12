@@ -19,7 +19,8 @@ from django.utils.html import strip_tags
 from events.models import Event, Participant
 from users.models import User, ParticipantUser
 
-from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantForm, ParticipantUserForm, SettingForm
+from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantForm, ParticipantUserForm, SettingForm, \
+    ChangePasswordForm
 
 DEFAULT_PASSWORD = "defaultpassword"
 PAGE_ITEMS_PER_PAGE = 1
@@ -86,10 +87,17 @@ def home(request):
 
 @login_required
 def profile(request, user_id):
+    change_password_form = ChangePasswordForm
     template = 'pages/user/profile.html'
     user = User.objects.get(pk=user_id)
-    context = { 'user': user }
+    context = { 'user': user, 'change_password_form': change_password_form }
     return render(request, template, context)
+
+
+@login_required
+def change_password(request):
+    messages.success(request, 'Password Changed!')
+    return redirect('profile', user_id=request.user.pk)
 
 
 @login_required
