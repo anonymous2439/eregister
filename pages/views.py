@@ -23,7 +23,7 @@ from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantF
     ChangePasswordForm
 
 DEFAULT_PASSWORD = "defaultpassword"
-PAGE_ITEMS_PER_PAGE = 2
+PAGE_ITEMS_PER_PAGE = 1
 
 
 @login_required
