@@ -19,7 +19,7 @@ class Participant(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     participant_user = models.ForeignKey(ParticipantUser, on_delete=models.CASCADE)
     scan_in = models.DateTimeField(default=datetime.now, blank=True)
-    scan_out = models.DateTimeField(default=datetime.now, blank=True)
+    scan_out = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return str(self.event)+' - '+str(self.participant_user)

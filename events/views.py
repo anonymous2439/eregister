@@ -21,7 +21,6 @@ def index(request):
 def read_qr(request):
     if request.method == "POST":
         data = json.loads(request.body.decode('utf-8'))
-        print(data)
         participant_user = ParticipantUser.objects.get(user_id=data['user_id'])
         event = Event.objects.get(pk=data['event_id'])
         participant = Participant(participant_user=participant_user, event=event).save()
