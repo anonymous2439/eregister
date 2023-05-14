@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
     {% load static %}
+
+    <link href="{% static 'fontawesomefree/css/all.min.css' %}" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="{% static 'pages/styles.css' %}">
+        {% if not user.is_authenticated %}
+        <style>
+            .wrapper{padding-left:0px; !important}
+        </style>
+        {% endif %}
     {% block head %}{% endblock head %}
 </head>
 <body>
+    {% if user and user.is_authenticated %}
     <div class="main_nav">
         {% if user and user.is_authenticated %}
         <h2 id="user_info">Logged in as: <span>{{ user }}</span></h2>
@@ -18,8 +26,8 @@
         <nav>
             {% if user and user.is_authenticated %}
             <ul>
-                <li><a href="{% url 'home' %}">Dashboard</a></li>
-                <li><a href="{% url 'event_home' %}">Events</a></li>
+                <li class="{% if active_menu == 'dashboard' %}active{% endif %}"><a href="{% url 'home' %}">Dashboard</a></li>
+                <li class="{% if active_menu == 'events' %}active{% endif %}"><a href="{% url 'event_home' %}">Events</a></li>
             </ul>
             {% endif %}
         </nav>
@@ -29,26 +37,27 @@
                 {% if user and user.is_authenticated %}
                     <ul>
                         {% if user.is_superuser %}
-                        <li><a href="{% url 'event_manage' %}">Manage Events</a></li>
-                        <li><a href="{% url 'organizer_manage' %}">Manage Organizers</a></li>
-                        <li><a href="{% url 'participant_manage' %}">Manage Participants</a></li>
+                        <li class="{% if active_menu == 'manage_events' %}active{% endif %}"><a href="{% url 'event_manage' %}"><i class="fa-solid fa-calendar-days"></i> Manage Events</a></li>
+                        <li class="{% if active_menu == 'manage_organizers' %}active{% endif %}"><a href="{% url 'organizer_manage' %}"><i class="fa-solid fa-clipboard-user"></i> Manage Organizers</a></li>
+                        <li class="{% if active_menu == 'manage_participants' %}active{% endif %}"><a href="{% url 'participant_manage' %}"> <i class="fa-solid fa-users"></i>Manage Participants</a></li>
                         {% endif %}
                     </ul>
                 {% endif %}
 
                     <ul>
                         {% if not user.is_authenticated %}
-                        <li><a href="{% url 'login' %}">Log-in</a></li>
+                        <li><a href="{% url 'login' %}"><i class="fa-solid fa-right-to-bracket"></i> Log-in</a></li>
                         {% endif %}
                         {% if user and user.is_authenticated %}
-                        <li><a href="{% url 'profile' user_id=user.pk %}">Profile</a></li>
-                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                        <li class="{% if active_menu == 'profile' %}active{% endif %}"><a href="{% url 'profile' user_id=user.pk %}"><i class="fa-solid fa-user"></i> Profile</a></li>
+                        <li id="logout_btn"><a href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
                         {% endif %}
                     </ul>
             </div>
         </div>
 
     </div>
+    {% endif %}
 
     <header>
 

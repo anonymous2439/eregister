@@ -3,14 +3,14 @@
 
 {% block content %}
 <h1>Manage Events</h1>
-<div class="links">
-    <a href="{% url 'event_create' %}">Create Event</a>
-    <a id="trigger" href="javascript:;">Delete</a>
+<div class="btns">
+    <a href="{% url 'event_create' %}" class="btn btn-primary"><i class="fa-solid fa-circle-plus"></i> Create Event</a>
+    <a id="trigger" href="javascript:;" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</a>
 </div>
 <div class="search">
     <form method="GET">
         <input type="text" name="s" placeholder="Search Title" />
-        <button type="submit">Search</button>
+        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
     </form>
 </div>
 <table class="events-tbl">
@@ -32,7 +32,7 @@
         <td>{{ event.description }}</td>
         <td>{{ event.start_date }}</td>
         <td>{{ event.end_date }}</td>
-        <td><a href="{% url 'event_edit' event_id=event.id %}">Edit</a></td>
+        <td><a href="{% url 'event_edit' event_id=event.id %}"><i class="fa-solid fa-pencil"></i> Edit</a></td>
     </tr>
     </tbody>
 {% endfor %}

@@ -23,7 +23,7 @@ from .forms import LoginForm, UserForm, EventForm, CreateEventForm, ParticipantF
     ChangePasswordForm
 
 DEFAULT_PASSWORD = "defaultpassword"
-PAGE_ITEMS_PER_PAGE = 1
+PAGE_ITEMS_PER_PAGE = 10
 
 
 @login_required
@@ -80,6 +80,7 @@ def home(request):
         'upcoming_events': upcoming_events,
         'top_participants': top_participants,
         'top_events': top_events,
+        'active_menu': 'dashboard',
     }
 
     return render(request, template, context)
@@ -90,7 +91,7 @@ def profile(request, user_id):
     change_password_form = ChangePasswordForm
     template = 'pages/user/profile.html'
     user = User.objects.get(pk=user_id)
-    context = { 'user': user, 'change_password_form': change_password_form }
+    context = { 'user': user, 'change_password_form': change_password_form, 'active_menu': 'profile' }
     return render(request, template, context)
 
 
@@ -138,7 +139,7 @@ def organizer_manage(request):
         paginator = Paginator(users, PAGE_ITEMS_PER_PAGE)
         page = request.GET.get('page')
         users = paginator.get_page(page)
-    return render(request, template, {'users': users, 'setting_form': setting_form,})
+    return render(request, template, {'users': users, 'setting_form': setting_form, 'active_menu': 'manage_organizers'})
 
 
 @login_required
@@ -167,7 +168,7 @@ def participant_manage(request):
         paginator = Paginator(participant_users, PAGE_ITEMS_PER_PAGE)
         page = request.GET.get('page')
         participant_users = paginator.get_page(page)
-    return render(request, template, {'participant_users': participant_users})
+    return render(request, template, {'participant_users': participant_users, 'active_menu': 'manage_participants'})
 
 
 def register_organizer(request):
@@ -284,6 +285,7 @@ def event_home(request):
         'user': user,
         'events': events,
         'today': today,
+        'active_menu': 'events',
     }
     return render(request, template, context)
 
@@ -314,8 +316,10 @@ def event_manage(request):
             messages.warning(request, 'No events selected.')
         else:
             for data_id in data:
-                Event.objects.get(pk=int(data_id)).delete()
-            messages.success(request, 'Selected events deleted...')
+                event = Event.objects.get(pk=int(data_id))
+                event.is_cancelled = True
+                event.save()
+            messages.success(request, 'Selected events cancelled...')
         response = {'isSuccess': True, }
         return JsonResponse(response)
 
@@ -328,7 +332,7 @@ def event_manage(request):
         paginator = Paginator(events, PAGE_ITEMS_PER_PAGE)
         page = request.GET.get('page')
         events = paginator.get_page(page)
-    return render(request, template, {'events': events})
+    return render(request, template, {'events': events, 'active_menu': 'manage_events'})
 
 
 @login_required

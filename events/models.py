@@ -10,6 +10,7 @@ class Event(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     organizer = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_cancelled = models.BooleanField(default=False, blank=False)
 
     def __str__(self):
         return self.title

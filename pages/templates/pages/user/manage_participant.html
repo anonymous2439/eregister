@@ -3,14 +3,14 @@
 
 {% block content %}
 <h1>Manage Participants</h1>
-<div class="links">
-    <a href="{% url 'register_participant' %}">Register Participant</a>
-    <a id="trigger" href="javascript:;">Delete</a>
+<div class="btns">
+    <a href="{% url 'register_participant' %}" class="btn"><i class="fa-solid fa-cash-register"></i> Register Participant</a>
+    <a id="trigger" href="javascript:;" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</a>
 </div>
 <div class="search">
     <form method="GET">
         <input type="text" name="s" placeholder="Search Participant ID" />
-        <button type="submit">Search</button>
+        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
     </form>
 </div>
 <table class="users-tbl">
@@ -34,7 +34,7 @@
         <td>{{ participant_user.last_name }}</td>
         <td>{{ participant_user.first_name }}</td>
         <td>{{ participant_user.middle_name }}</td>
-        <td><a href="{% url 'participant_user_edit' user_id=participant_user.id %}">Edit</a></td>
+        <td><a href="{% url 'participant_user_edit' user_id=participant_user.id %}"><i class="fa-solid fa-pencil"></i> Edit</a></td>
     </tr>
     </tbody>
 {% endfor %}

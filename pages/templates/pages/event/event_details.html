@@ -16,12 +16,27 @@
 
 <h2>Participants ({{ participants.count }})</h2>
 
-<a href="{% url 'generate_csv' event_id=event.pk %}">Export</a>
-<a href="{% url 'send_survey' event_id=event.pk %}">Send Survey</a>
+<div class="btns" style="margin-bottom:15px;">
+    <a href="{% url 'generate_csv' event_id=event.pk %}" class="btn">Export</a>
+    <a href="{% url 'send_survey' event_id=event.pk %}" class="btn btn-secondary">Send Survey</a>
+</div>
 
-<ol>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>In</th>
+            <th>Out</th>
+        </tr>
+    </thead>
+    <tbody>
 {% for participant in participants %}
-    <li>{{ participant.participant_user.last_name }}, {{ participant.participant_user.first_name }} {{ participant.participant_user.middle_name }} | IN: {{ participant.scan_in }}, OUT: {{ participant.scan_out }}</li>
+        <tr>
+            <td>{{ participant.participant_user.last_name }}, {{ participant.participant_user.first_name }} {{ participant.participant_user.middle_name }}</td>
+            <td>{{ participant.scan_in }}</td>
+            <td>{{ participant.scan_out }}</td>
+        </tr>
 {% endfor %}
-</ol>
+    </tbody>
+</table>
 {% endblock content %}
